@@ -46,6 +46,7 @@ namespace MovieApi.Controllers
                 UserId = userId,
                 MovieId = dto.MovieId,
                 Title = dto.Title,
+                Year = dto.Year,
                 PosterUrl = dto.PosterUrl
             };
 
