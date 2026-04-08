@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using MovieApi.Services;
 
 namespace MovieApi.Controllers
 {
@@ -7,36 +7,29 @@ namespace MovieApi.Controllers
     [Route("api/[controller]")]
     public class MoviesController : ControllerBase
     {
-        private readonly IConfiguration _config;
-        private readonly HttpClient _httpClient;
+        private readonly OmdbService _omdbService;
 
-        public MoviesController(IConfiguration config, HttpClient httpClient)
+        public MoviesController(IConfiguration config, HttpClient httpClient, OmdbService omdbService)
         {
-            _config = config;
-            _httpClient = httpClient;
+            _omdbService = omdbService;
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> Search(string query)
+        public async Task<IActionResult> Search(string title)
         {
-            if (string.IsNullOrEmpty(query))
+            if (string.IsNullOrEmpty(title))
             {
-                return BadRequest("Query is required");
+                return BadRequest("Title is required");
             }
 
-            var apiKey = _config["Omdb:ApiKey"];
-            var url = $"http://www.omdbapi.com/?apikey={apiKey}&s={query}";
+            var movies = await _omdbService.SearchMoviesAsync(title);
 
-            var response = await _httpClient.GetAsync(url);
-
-            if (!response.IsSuccessStatusCode)
+            if (movies.Count == 0)
             {
-                Console.WriteLine(response);
-                return StatusCode(500, "Error calling OMDb API");
+                return NotFound($"No movies found with title: {title}");
             }
 
-            var content = await response.Content.ReadAsStringAsync();
-            return Ok(content);
+            return Ok(movies);
         }
 
     }
