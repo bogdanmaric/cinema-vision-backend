@@ -39,7 +39,9 @@ namespace MovieApi.Controllers
             var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
             if (userId == null)
+            {
                 return Unauthorized();
+            }
 
             var favorite = new FavoriteMovie
             {
@@ -84,7 +86,9 @@ namespace MovieApi.Controllers
                 .FirstOrDefaultAsync(f => f.Id == id && f.UserId == userId);
 
             if (favorite == null)
+            {
                 return NotFound();
+            }
 
             _context.FavoriteMovies.Remove(favorite);
             await _context.SaveChangesAsync();
