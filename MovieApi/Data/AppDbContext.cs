@@ -10,5 +10,14 @@ namespace MovieApi.Data
 
         public DbSet<FavoriteMovie> FavoriteMovies { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<FavoriteMovie>()
+                .HasIndex(f => new { f.UserId, f.MovieId })
+                .IsUnique();
+        }
+
     }
 }

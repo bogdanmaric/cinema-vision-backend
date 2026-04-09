@@ -50,8 +50,27 @@ namespace MovieApi.Controllers
                 PosterUrl = dto.PosterUrl
             };
 
-            _context.FavoriteMovies.Add(favorite);
-            await _context.SaveChangesAsync();
+            var exists = await _context.FavoriteMovies
+                .AnyAsync(f => f.UserId == userId && f.MovieId == dto.MovieId);
+
+            if (exists)
+            {
+                return BadRequest("Movie already in favorites");
+            }
+
+            try
+            {
+                _context.FavoriteMovies.Add(favorite);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex) 
+            {
+                if (ex.InnerException?.Message.Contains("duplicate") == true)
+                {
+                    return BadRequest("Movie already in favorites");
+                }
+                return StatusCode(500, "An error occurred while adding favorite movie");
+            }
 
             return Ok(favorite);
         }
