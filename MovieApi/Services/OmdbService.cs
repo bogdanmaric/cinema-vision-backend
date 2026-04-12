@@ -17,7 +17,6 @@ namespace MovieApi.Services
             _httpClient = httpClient;
         }
 
-        [HttpGet("search")]
         public async Task<List<MovieDto>> SearchMoviesAsync(string title)
         {
 
