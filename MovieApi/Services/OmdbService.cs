@@ -41,5 +41,32 @@ namespace MovieApi.Services
                 PosterUrl = m.Poster
             }).ToList();
         }
+
+        public async Task<MovieDetailsDto?> GetMovieDetailsAsync(string movieId)
+        {
+            var apiKey = _config["Omdb:ApiKey"];
+            var url = $"http://www.omdbapi.com/?apikey={apiKey}&i={movieId}";
+            var response = await _httpClient.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return new MovieDetailsDto();
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var movie = JsonSerializer.Deserialize<OmdbMovieDetails>(content);
+
+            return new MovieDetailsDto
+            {
+                MovieId = movie.ImdbID,
+                Title = movie.Title,
+                Year = movie.Year,
+                Genre = movie.Genre,
+                Director = movie.Director,
+                Plot = movie.Plot,
+                PosterUrl = movie.Poster
+            };
+
+        }
     }
 }

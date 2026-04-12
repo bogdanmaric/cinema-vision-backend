@@ -32,5 +32,18 @@ namespace MovieApi.Controllers
             return Ok(movies);
         }
 
+        [HttpGet("{movieId}")]
+        public async Task<IActionResult> GetDetails(string movieId)
+        {
+            var movie = await _omdbService.GetMovieDetailsAsync(movieId);
+
+            if (movie == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(movie);
+        }
+
     }
 }
