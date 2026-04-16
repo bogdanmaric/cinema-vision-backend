@@ -30,7 +30,7 @@ namespace MovieApi.Controllers
                 return BadRequest(result.Errors);
             }
 
-            return Ok("User registered successfully");
+            return Ok(new { message = "User registered successfully" });
         }
 
         [HttpPost("login")]
