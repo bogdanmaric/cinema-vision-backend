@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MovieApi.DTOs;
 using MovieApi.Services;
 
 namespace MovieApi.Controllers
@@ -26,7 +27,7 @@ namespace MovieApi.Controllers
 
             if (movies.Count == 0)
             {
-                return NotFound($"No movies found with title: {title}");
+                return Ok(new List<MovieDto>());
             }
 
             return Ok(movies);
