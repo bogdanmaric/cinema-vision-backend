@@ -19,6 +19,10 @@ namespace MovieApi.Services
 
         public async Task<List<MovieDto>> SearchMoviesAsync(string title)
         {
+            if (string.IsNullOrWhiteSpace(title) || title.Length < 3)
+            {
+                return new List<MovieDto>();
+            }
 
             var apiKey = _config["Omdb:ApiKey"];
             var url = $"http://www.omdbapi.com/?apikey={apiKey}&s={title}";
@@ -31,6 +35,11 @@ namespace MovieApi.Services
 
             var content = await response.Content.ReadAsStringAsync();
             var omdbResponse = JsonSerializer.Deserialize<OmdbResponse>(content);
+
+            if (omdbResponse?.Search == null)
+            {
+                return new List<MovieDto>();
+            }
 
             return omdbResponse.Search.Select(m => new MovieDto
             {
