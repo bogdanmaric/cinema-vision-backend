@@ -18,9 +18,9 @@ namespace MovieApi.Controllers
         [HttpGet("search")]
         public async Task<IActionResult> Search(string title)
         {
-            if (string.IsNullOrEmpty(title))
+            if (title.Length < 3)
             {
-                return BadRequest("Title is required");
+                return BadRequest(new { message = "Title required minimum 3 characters" });
             }
 
             var movies = await _omdbService.SearchMoviesAsync(title);
