@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MovieApi.Tests
 {
-    public class RegisterDtoTest
+    public class RegisterDtoTests
     {
         [Fact]
         public void Should_Fail_When_Email_Is_Missing()
