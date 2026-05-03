@@ -26,6 +26,14 @@ namespace MovieApi.Controllers
         public async Task<IActionResult> GetFavorites()
         {
             var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new ApiError
+                {
+                    Message = "User is not authenticated.",
+                    Code = "UNAUTHORIZED"
+                });
+            }
             var favorites = await _favoriteService.GetFavorites(userId);
             return Ok(favorites);
         }
@@ -35,14 +43,27 @@ namespace MovieApi.Controllers
         {
             var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new ApiError
+                {
+                    Message = "User is not authenticated.",
+                    Code = "UNAUTHORIZED"
+                });
+            }
+
             var success = await _favoriteService.AddFavorite(userId, dto);
 
             if (!success)
             {
-                return BadRequest("Movie already in favorites");
+                return Conflict(new ApiError
+                {
+                    Message = "Movie already in favorites list.",
+                    Code = "ALREADY_EXISTS"
+                });
             }
 
-            return Ok();
+            return Ok(new { Message = "Movie added to favorites successfully." });
         }
 
         [HttpDelete("{id}")]
@@ -50,10 +71,23 @@ namespace MovieApi.Controllers
         {
             var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new ApiError
+                {
+                    Message = "User is not authenticated.",
+                    Code = "UNAUTHORIZED"
+                });
+            }
+
             var success = await _favoriteService.DeleteFavorite(userId, id);
 
             if (!success)
-                return NotFound();
+                return NotFound(new ApiError
+                {
+                    Message = "Movie not found in favorites list.",
+                    Code = "NOT_FOUND"
+                });
 
             return NoContent();
         }
