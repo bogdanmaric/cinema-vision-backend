@@ -29,6 +29,7 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IFavoriteService, FavoriteService>();
 
 JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MovieApi.Data;
 using MovieApi.DTOs;
 using MovieApi.Models;
+using MovieApi.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -14,25 +15,18 @@ namespace MovieApi.Controllers
     [Authorize]
     public class FavoritesController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly ILogger<FavoritesController> _logger;
+        private readonly IFavoriteService _favoriteService;
 
-        public FavoritesController(AppDbContext context, ILogger<FavoritesController> logger)
+        public FavoritesController(IFavoriteService favoriteService)
         {
-            _context = context;
-            _logger = logger;
+            _favoriteService = favoriteService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetFavorites()
         {
             var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-            _logger.LogInformation("Getting favorites movies for user {UserId}", userId);
-
-            var favorites = await _context.FavoriteMovies
-                .Where(m => m.UserId == userId)
-                .ToListAsync();
-
+            var favorites = await _favoriteService.GetFavorites(userId);
             return Ok(favorites);
         }
 
@@ -40,48 +34,15 @@ namespace MovieApi.Controllers
         public async Task<IActionResult> AddFavorite(AddFavoriteDto dto)
         {
             var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-            _logger.LogInformation("Adding favorite movie {MovieId} for user {UserId}", dto.MovieId, userId);
 
-            if (userId == null)
+            var success = await _favoriteService.AddFavorite(userId, dto);
+
+            if (!success)
             {
-                return Unauthorized();
-            }
-
-            var favorite = new FavoriteMovie
-            {
-                UserId = userId,
-                MovieId = dto.MovieId,
-                Title = dto.Title,
-                Year = dto.Year,
-                PosterUrl = dto.PosterUrl
-            };
-
-            var exists = await _context.FavoriteMovies
-                .AnyAsync(f => f.UserId == userId && f.MovieId == dto.MovieId);
-
-            if (exists)
-            {
-                _logger.LogWarning("Duplicate favorite attempt: user {UserId} already has movie {MovieId} in favorites", userId, dto.MovieId);
                 return BadRequest("Movie already in favorites");
             }
 
-            try
-            {
-                _context.FavoriteMovies.Add(favorite);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex) 
-            {
-                _logger.LogError(ex, "Error adding favorite movie {MovieId} for user {UserId}", dto.MovieId, userId);
-
-                if (ex.InnerException?.Message.Contains("duplicate") == true)
-                {
-                    return BadRequest("Movie already in favorites");
-                }
-                return StatusCode(500, "An error occurred while adding favorite movie");
-            }
-
-            return Ok(favorite);
+            return Ok();
         }
 
         [HttpDelete("{id}")]
@@ -89,19 +50,10 @@ namespace MovieApi.Controllers
         {
             var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
-            _logger.LogInformation("User {UserId} deleting favorite movie {FavoriteId}", userId, id);
+            var success = await _favoriteService.DeleteFavorite(userId, id);
 
-            var favorite = await _context.FavoriteMovies
-                .FirstOrDefaultAsync(f => f.Id == id && f.UserId == userId);
-
-            if (favorite == null)
-            {
-                _logger.LogWarning("Favorite movie {FavoriteId} not found for user {UserId}", id, userId);
+            if (!success)
                 return NotFound();
-            }
-
-            _context.FavoriteMovies.Remove(favorite);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }
