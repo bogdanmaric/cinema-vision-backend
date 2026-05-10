@@ -40,7 +40,11 @@ namespace MovieApi.Controllers
 
             if (movie == null)
             {
-                return NotFound();
+                return NotFound(new ApiError
+                {
+                    Message = "Movie not found",
+                    Code = "NOT_FOUND"
+                });
             }
 
             return Ok(movie);

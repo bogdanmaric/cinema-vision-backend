@@ -37,10 +37,24 @@ namespace MovieApi.Controllers
         public async Task<IActionResult> Login(LoginDto dto)
         {
             var user = await _userManager.FindByNameAsync(dto.Username);
-            if (user == null) return Unauthorized("Invalid username or password");
+            if (user == null)
+            {
+                return Unauthorized(new ApiError
+                {
+                    Message = "Invalid username or password",
+                    Code = "INVALID_CREDENTIALS"
+                });
+            }
 
             var valid = await _userManager.CheckPasswordAsync(user, dto.Password);
-            if (!valid) return Unauthorized("Invalid username or password");
+            if (!valid)
+            {
+                return Unauthorized(new ApiError
+                {
+                    Message = "Invalid username or password",
+                    Code = "INVALID_CREDENTIALS"
+                });
+            }
 
             var token = _jwtService.GenerateToken(user);
             return Ok(new { Token = token });
