@@ -2,9 +2,9 @@
 
 Backend REST API for the Cinema Vision movie application.
 
-Provides user authentication, movie search integration with OMDb API, movie details, and personal favorites management.
+Provides user authentication, movie search integration with the OMDb API, movie details, and personal favorites management.
 
-Built with **ASP.NET Core Web API**, **Entity Framework Core**, **ASP.NET Identity**, **JWT Authentication**, and **PostgreSQL**.
+Built with **ASP.NET Core Web API**, **Entity Framework Core**, **ASP.NET Identity**, **JWT Authentication**, **PostgreSQL**, and **Docker**.
 
 ---
 
@@ -26,22 +26,32 @@ Built with **ASP.NET Core Web API**, **Entity Framework Core**, **ASP.NET Identi
 - Remove favorite movies
 - Prevent duplicate favorites per user
 
-### 🛠 Quality
+### 🛠 Quality & Architecture
 - DTO-based request and response models
 - Input validation with DataAnnotations
 - Logging with ASP.NET Core ILogger
-- Error handling for database operations
+- Global exception handling middleware
+- Standardized API error responses
 - Layered architecture (Controllers, Services, DTOs, Data)
+- Service layer abstraction
+- Unit testing with xUnit and Moq
+- Automatic EF Core migrations on startup
+- Dockerized backend and database setup
+- CORS configuration for frontend integration
 
 ---
 
 ## 🧱 Tech Stack
 
-- ASP.NET Core Web API
+- ASP.NET Core Web API (.NET 10)
 - Entity Framework Core
 - ASP.NET Identity
 - JWT Bearer Authentication
 - PostgreSQL
+- Docker & Docker Compose
+- xUnit
+- Moq
+- FluentAssertions
 - OMDb API
 
 ---
@@ -49,15 +59,24 @@ Built with **ASP.NET Core Web API**, **Entity Framework Core**, **ASP.NET Identi
 ## 📁 Project Structure
 
 ```text
-MovieApi/
-├── Controllers/
-├── Data/
-├── Dtos/
-├── Models/
-├── Services/
-├── Migrations/
-└── Program.cs
-````
+backend/
+├── docker-compose.yml
+├── Dockerfile
+└── MovieApi/
+    ├── MovieApi/
+    │   ├── Controllers/
+    │   ├── Data/
+    │   ├── Dtos/
+    │   ├── Interfaces/
+    │   ├── Middleware/
+    │   ├── Models/
+    │   ├── Services/
+    │   ├── Migrations/
+    │   └── Program.cs
+    │
+    ├── MovieApi.Tests/
+    └── MovieApi.slnx
+```
 
 ---
 
@@ -67,8 +86,10 @@ MovieApi/
 
 ```bash
 git clone <your-repository-url>
-cd cinema-vision-api
+cd cinema-vision/backend
 ```
+
+---
 
 ### 2. Configure database connection
 
@@ -76,19 +97,24 @@ Update `appsettings.json`
 
 ```json
 "ConnectionStrings": {
-  "DefaultConnection": "Host=localhost;Database=MovieDb;Username=your_user;Password=your_password"
+  "DefaultConnection": "Host=localhost;Port=5432;Database=movie_db;Username=movie_user;Password=movieuser"
 }
 ```
+
+---
 
 ### 3. Configure JWT settings
 
 ```json
 "Jwt": {
   "Key": "your_secret_key",
-  "Issuer": "your_issuer",
-  "Audience": "your_audience"
+  "Issuer": "MovieApi",
+  "Audience": "MovieApiUsers",
+  "DurationInMinutes": 60
 }
 ```
+
+---
 
 ### 4. Configure OMDb API key
 
@@ -98,11 +124,15 @@ Update `appsettings.json`
 }
 ```
 
+---
+
 ### 5. Apply migrations
 
 ```bash
 dotnet ef database update
 ```
+
+---
 
 ### 6. Run the API
 
@@ -110,40 +140,99 @@ dotnet ef database update
 dotnet run
 ```
 
+API will be available at:
+
+```text
+http://localhost:5151
+```
+
+---
+
+## 🐳 Run with Docker
+
+### Start containers
+
+```bash
+docker-compose up --build
+```
+
+API will be available at:
+
+```text
+http://localhost:5000
+```
+
+### Stop containers
+
+```bash
+docker-compose down
+```
+
+The Docker setup includes:
+- ASP.NET Core API container
+- PostgreSQL database container
+- Automatic EF Core migrations on startup
+
 ---
 
 ## 🔌 API Endpoints
 
 ### Auth
 
-* `POST /api/auth/register`
-* `POST /api/auth/login`
+- `POST /api/auth/register`
+- `POST /api/auth/login`
 
 ### Movies
 
-* `GET /api/movies/search?title=batman`
-* `GET /api/movies/{id}`
+- `GET /api/movies/search?title=batman`
+- `GET /api/movies/{id}`
 
 ### Favorites (Authorized)
 
-* `GET /api/favorites`
-* `POST /api/favorites`
-* `DELETE /api/favorites/{id}`
+- `GET /api/favorites`
+- `POST /api/favorites`
+- `DELETE /api/favorites/{id}`
+
+---
+
+## ✅ Testing
+
+Unit tests are implemented using:
+- xUnit
+- Moq
+- FluentAssertions
+- EF Core InMemory provider
+
+Current tests cover:
+- DTO validation
+- JWT token generation
+- Favorite movie service logic
+
+Run tests with:
+
+```bash
+dotnet test
+```
 
 ---
 
 ## 🧠 Concepts Demonstrated
 
-* RESTful API development
-* JWT authentication and authorization
-* ASP.NET Identity integration
-* Entity relationships with EF Core
-* External API consumption
-* DTO pattern
-* Validation with DataAnnotations
-* Structured logging
-* Error handling
-* PostgreSQL integration
+- RESTful API development
+- JWT authentication and authorization
+- ASP.NET Identity integration
+- Entity relationships with EF Core
+- External API consumption
+- DTO pattern
+- Validation with DataAnnotations
+- Structured logging
+- Global exception handling
+- Service layer architecture
+- Dependency Injection
+- Unit testing with xUnit and Moq
+- Docker containerization
+- PostgreSQL integration
+- CORS configuration
 
 ---
 
@@ -164,6 +253,3 @@ Full-stack developer focused on building clean, secure, and practical web applic
 ## 📄 License
 
 This project is for educational and portfolio purposes.
-
-```
-```
