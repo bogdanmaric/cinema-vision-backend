@@ -246,7 +246,7 @@ dotnet test
 
 Frontend client available in separate repository:
 
-`cinema-vision-client`
+`cinema-vision-frontend`
 
 ---
 
