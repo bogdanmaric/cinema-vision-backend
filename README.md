@@ -10,7 +10,7 @@ Built with **ASP.NET Core Web API**, **Entity Framework Core**, **ASP.NET Identi
 
 ## 🎥 Demo
 
-[![Watch Demo](https://img.youtube.com/vi/2yxXLsC6Q9k/maxresdefault.jpg)](https://www.youtube.com/watch?v=2yxXLsC6Q9k)
+[![Watch Demo](https://img.youtube.com/vi/aJVNwltKXqQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=aJVNwltKXqQ)
 
 ---
 
